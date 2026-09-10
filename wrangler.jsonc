@@ -1,0 +1,6 @@
+{
+  "name": "mp3",
+  "compatibility_date": "2026-07-01",
+  "assets": { "directory": "." },
+  "routes": [{ "pattern": "mp3.harrys.monster", "custom_domain": true }]
+}

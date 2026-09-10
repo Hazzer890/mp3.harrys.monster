@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Fix the tags on an album's MP3s so iTunes shows one album with one cover. Runs in your browser, nothing is uploaded.">
+  <meta name="theme-color" content="#f5f7fc">
+  <link rel="canonical" href="https://mp3.harrys.monster/">
+  <title>MP3 album fixer | Harry Cassidy</title>
+
+  <!-- Favicon: h.m monogram -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='12' fill='%232563eb'/><text x='50%25' y='54%25' dominant-baseline='middle' text-anchor='middle' font-family='JetBrains Mono,ui-monospace,monospace' font-size='30' font-weight='700' fill='%23fafafa'>h<tspan fill='%23dbeafe'>.</tspan>m</text></svg>">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/reset.css">
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/responsive.css">
+  <link rel="stylesheet" href="css/app.css">
+<script>
+(function(){var A='https://analytics.harrys.monster/e',v;
+try{v=localStorage.getItem('_aid')||crypto.randomUUID();localStorage.setItem('_aid',v)}catch(e){v='anon'}
+var t0=Date.now(),ms=0,lcp=0,cls=0,de=document.documentElement;
+function send(o){o.vid=v;o.site=location.host;o.path=location.pathname+location.hash;
+try{navigator.sendBeacon(A,JSON.stringify(o))}catch(e){}}
+function pv(){send({t:'pv',ref:document.referrer,q:location.search,ti:document.title,
+lang:navigator.language,tz:Intl.DateTimeFormat().resolvedOptions().timeZone,
+sw:screen.width,sh:screen.height,w:innerWidth,h:innerHeight,dw:de.scrollWidth,dh:de.scrollHeight})}
+pv();addEventListener('hashchange',pv);
+try{new PerformanceObserver(function(l){var e=l.getEntries();lcp=Math.round(e[e.length-1].startTime)}).observe({type:'largest-contentful-paint',buffered:true});
+new PerformanceObserver(function(l){l.getEntries().forEach(function(e){if(!e.hadRecentInput)cls+=e.value})}).observe({type:'layout-shift',buffered:true})}catch(e){}
+addEventListener('scroll',function(){var s=(scrollY+innerHeight)/de.scrollHeight*100;if(s>ms)ms=s},{passive:true});
+addEventListener('click',function(e){var el=e.target.closest?e.target.closest('a,button,[data-track]')||e.target:e.target;
+var cn=typeof el.className=='string'&&el.className.trim()?'.'+el.className.trim().split(/\s+/).slice(0,2).join('.'):'';
+var o={t:'click',x:e.pageX,y:e.pageY,w:innerWidth,dw:de.scrollWidth,dh:de.scrollHeight,
+sel:(el.tagName.toLowerCase()+(el.id?'#'+el.id:cn)).slice(0,140)};
+var a=e.target.closest&&e.target.closest('a');if(a&&a.host&&a.host!=location.host)o.out=a.href;
+send(o)},true);
+addEventListener('error',function(e){send({t:'error',name:String(e.message||'error').slice(0,200),
+props:{src:String(e.filename||'').slice(0,200),line:e.lineno,col:e.colno}})});
+addEventListener('visibilitychange',function(){if(document.visibilityState=='hidden'){var n=performance.getEntriesByType('navigation')[0];
+send({t:'leave',dur:Math.round((Date.now()-t0)/1e3),scroll:Math.round(Math.min(ms,100)),
+lcp:lcp,cls:Math.round(cls*1000),load:n&&n.loadEventEnd?Math.round(n.loadEventEnd):0})}});
+window.track=function(n,p){send({t:'custom',name:n,props:p})};
+})();
+</script></head>
+<body>
+  <a href="#dropzone" class="skip-link">Skip to file picker</a>
+
+  <!-- SVG filter defs (shared background mount) -->
+  <svg class="glass-defs" aria-hidden="true" focusable="false" width="0" height="0">
+    <defs>
+      <filter id="glass-distortion" x="-20%" y="-20%" width="140%" height="140%" color-interpolation-filters="sRGB">
+        <feTurbulence type="fractalNoise" baseFrequency="0.008 0.012" numOctaves="2" seed="7" result="noise"/>
+        <feGaussianBlur in="noise" stdDeviation="3" result="softNoise"/>
+
+        <!-- Chromatic aberration: each channel bends by a different amount,
+             then the three are recombined. -->
+        <feDisplacementMap in="SourceGraphic" in2="softNoise" scale="18" xChannelSelector="R" yChannelSelector="G" result="bendR"/>
+        <feDisplacementMap in="SourceGraphic" in2="softNoise" scale="13" xChannelSelector="R" yChannelSelector="G" result="bendG"/>
+        <feDisplacementMap in="SourceGraphic" in2="softNoise" scale="8"  xChannelSelector="R" yChannelSelector="G" result="bendB"/>
+        <feColorMatrix in="bendR" type="matrix" values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0" result="onlyR"/>
+        <feColorMatrix in="bendG" type="matrix" values="0 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 1 0" result="onlyG"/>
+        <feColorMatrix in="bendB" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 1 0 0  0 0 0 1 0" result="onlyB"/>
+        <feBlend in="onlyR" in2="onlyG" mode="screen" result="bentRG"/>
+        <feBlend in="bentRG" in2="onlyB" mode="screen" result="bent"/>
+
+        <!-- Edge refraction: a band along the rim bends much harder, the way
+             a thick lens does where it curves away. -->
+        <feMorphology in="SourceAlpha" operator="erode" radius="18" result="core"/>
+        <feComposite in="SourceAlpha" in2="core" operator="out" result="rim"/>
+        <feGaussianBlur in="rim" stdDeviation="7" result="rimSoft"/>
+        <feDisplacementMap in="SourceGraphic" in2="softNoise" scale="38" xChannelSelector="R" yChannelSelector="G" result="bendEdge"/>
+        <feComposite in="bendEdge" in2="rimSoft" operator="in" result="edgeOnly"/>
+        <feMerge>
+          <feMergeNode in="bent"/>
+          <feMergeNode in="edgeOnly"/>
+        </feMerge>
+      </filter>
+    </defs>
+  </svg>
+
+  <!-- Background mount: flow-field canvas + drifting gradient blobs -->
+  <canvas id="field" aria-hidden="true"></canvas>
+  <div class="backdrop" aria-hidden="true">
+    <span class="blob blob--indigo"></span>
+    <span class="blob blob--cyan"></span>
+    <span class="blob blob--magenta"></span>
+    <span class="grain"></span>
+  </div>
+
+  <header class="header">
+    <nav class="nav" aria-label="Primary">
+      <a href="https://harrys.monster" class="nav-logo">Harry Cassidy</a>
+      <span class="nav-title">MP3 album fixer</span>
+    </nav>
+  </header>
+
+  <main class="app container">
+    <div class="intro">
+      <h1>One album, one cover, in iTunes</h1>
+      <p>iTunes on Windows splits an album when the tracks disagree about album artist, compilation flag or spelling, and drops art it can't read. Drop the album's MP3s, check three fields, pick a cover, download a zip that imports as one album.</p>
+    </div>
+
+    <div class="dropzone glass" id="dropzone">
+      <input type="file" id="file-input" multiple accept=".mp3,audio/mpeg,image/*" hidden>
+      <p>Drop MP3s (and a cover image) here, or <button type="button" class="btn btn-ghost" id="browse">browse</button></p>
+      <p class="dropzone-hint">Tags are rewritten as ID3v2.3, the version iTunes on Windows reads reliably. Audio is untouched.</p>
+    </div>
+
+    <p class="skipped" id="skipped"></p>
+    <div class="cards" id="cards" aria-live="polite"></div>
+    <div class="card-actions"><button type="button" class="btn btn-primary" id="download-all" hidden>Download all albums</button></div>
+  </main>
+
+  <template id="card-tpl">
+    <section class="card glass album">
+      <div class="album-grid">
+        <div class="art">
+          <img class="art-img" alt="" hidden>
+          <div class="art-empty">No cover</div>
+          <div class="art-actions">
+            <button type="button" class="btn btn-ghost art-file">Use file</button>
+            <input type="file" class="art-input" accept="image/*" hidden>
+            <button type="button" class="btn btn-ghost art-search">Search</button>
+          </div>
+          <div class="art-results"></div>
+        </div>
+        <div class="fields">
+          <label>Album <input class="f-album" type="text"></label>
+          <label>Album artist <input class="f-artist" type="text" list="artist-list"></label>
+          <label>Year <input class="f-year" type="text" inputmode="numeric" maxlength="4"></label>
+        </div>
+      </div>
+      <div class="meta-wrap">
+        <table class="meta">
+          <thead><tr><th scope="col">#</th><th scope="col">Title</th><th scope="col">Artist</th><th scope="col">Tag</th><th scope="col">Size</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <ul class="diagnosis"></ul>
+      <div class="card-actions"><button type="button" class="btn btn-primary card-download">Download zip</button></div>
+      <p class="card-note"></p>
+      <p class="card-error" role="alert"></p>
+    </section>
+  </template>
+  <datalist id="artist-list"><option value="Various Artists"></datalist>
+
+  <footer class="footer">
+    <div class="container">
+      <p>Everything runs in your browser. No file leaves your device.</p>
+      <p>Harry Cassidy &copy; <span id="year">2026</span> ·
+         <a href="https://harrys.monster">harrys.monster</a></p>
+    </div>
+  </footer>
+
+  <script src="js/background.js" defer></script>
+  <script src="vendor/jszip.min.js"></script>
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
