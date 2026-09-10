@@ -54,6 +54,7 @@
 .art { display: grid; gap: .6rem; align-content: start; }
 .art-img, .art-empty { width: 300px; max-width: 100%; aspect-ratio: 1; border-radius: 10px; object-fit: cover; }
 .art-empty { display: grid; place-items: center; background: var(--surface-2); color: var(--ink-mute); font-family: var(--font-mono); }
+.art-img[hidden] { display: none; }
 .art-img:not([hidden]) + .art-empty { display: none; }
 .art-actions { display: flex; gap: .5rem; }
 .art-results { display: grid; grid-template-columns: repeat(3, 1fr); gap: .4rem; }
