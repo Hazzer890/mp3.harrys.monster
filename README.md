@@ -16,7 +16,11 @@ Everything runs client-side. The only network request is the optional artwork se
 
 ## Stack
 
-Plain HTML, CSS and JavaScript, no build step. `js/id3.js` reads ID3v2.2 to 2.4 and writes 2.3; `js/album.js` is grouping, defaults, diagnosis and the write rules. CSS, background and `jszip` copied from `metadata.harrys.monster`.
+Plain HTML and JavaScript, no build step. `js/id3.js` reads ID3v2.2 to 2.4 and writes 2.3; `js/album.js` is grouping, defaults, diagnosis and the write rules. `jszip` is copied from `metadata.harrys.monster`.
+
+## Styling
+
+Deliberately none. The shared CSS, fonts and background canvas copied from the other sites were removed on 2026-09-10; `css/app.css` holds only the rules the page needs to function (hidden states, cover size). At the next harrys.monster major restyle this site gets brought in line with the rest.
 
 ## Developing
 
