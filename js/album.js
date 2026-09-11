@@ -1,4 +1,4 @@
-import { parse, text, textFrame, apicFrame, normalise, build } from './id3.js';
+import { parse, text, textFrame, apicFrame, normalise, buildTag } from './id3.js';
 
 const collator = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' });
 const key = s => (s || '').trim().toLowerCase();
@@ -13,12 +13,24 @@ function artOf(frame) {
   return d.slice(o);
 }
 
-export function load(name, bytes) {
-  const parsed = parse(bytes);
+const read = async (file, a, b) => new Uint8Array(await file.slice(a, b).arrayBuffer());
+
+// Reads only the ID3 tag(s) at the front and the 128-byte trailer; the audio
+// stays on disk as a Blob slice so a 250-track album never sits in memory.
+export async function load(file) {
+  let end = 0;
+  for (;;) {
+    const h = await read(file, end, end + 10);
+    if (!(h[0] === 0x49 && h[1] === 0x44 && h[2] === 0x33 && h[3] < 0xff && h[6] < 0x80)) break;
+    end += 10 + ((h[6] & 127) << 21 | (h[7] & 127) << 14 | (h[8] & 127) << 7 | (h[9] & 127)) + (h[3] === 4 && h[5] & 0x10 ? 10 : 0);
+  }
+  const parsed = parse(await read(file, 0, end));
+  const tail = file.size - end >= 128 ? await read(file, file.size - 128, file.size - 125) : null;
+  const audioEnd = tail && tail[0] === 0x54 && tail[1] === 0x41 && tail[2] === 0x47 ? file.size - 128 : file.size;
   const f = id => parsed.frames.find(x => x.id === id);
   const s = id => { const x = f(id); return x ? text(x).trim() : ''; };
   const track = /^\s*(\d+)/.exec(s('TRCK'));
-  return { name, size: bytes.length, parsed, info: {
+  return { name: file.name, size: file.size, parsed, audio: file.slice(end, audioEnd), info: {
     title: s('TIT2'), artist: s('TPE1'), album: s('TALB'), albumArtist: s('TPE2'),
     year: (s('TYER') || s('TDRC')).slice(0, 4), track: track ? +track[1] : null,
     compilation: s('TCMP') === '1', art: artOf(f('APIC')), version: parsed.version,
@@ -69,10 +81,10 @@ export function apply(track, form, cover, n, total) {
   if (form.year) set.push(textFrame('TYER', form.year));
   if (form.albumArtist === 'Various Artists') set.push(textFrame('TCMP', '1'));
   if (cover) set.push(apicFrame(cover));
-  const out = build([...keep, ...set], track.parsed.audio);
-  const check = parse(out), got = id => { const f = check.frames.find(f => f.id === id); return f ? text(f) : ''; };
+  const tag = buildTag([...keep, ...set]);
+  const check = parse(tag), got = id => { const f = check.frames.find(f => f.id === id); return f ? text(f) : ''; };
   if (check.version !== 3) throw new Error('verification failed: version');
   for (const [id, want] of [['TALB', form.album], ['TPE2', form.albumArtist], ['TYER', form.year], ['TRCK', `${n}/${total}`]])
     if (got(id) !== want) throw new Error(`verification failed: ${id}`);
-  return out;
+  return new Blob([tag, track.audio]);
 }

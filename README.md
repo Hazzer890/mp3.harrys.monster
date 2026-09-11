@@ -11,12 +11,12 @@ Everything runs client-side. The only network request is the optional artwork se
 - Writes one front cover: square centre crop, up to 1400 px, JPEG. Sources: the cover already in a track, an image you drop, or an iTunes search.
 - Track numbers become `n/total`. If any track has no number, all are renumbered from file-name order.
 - Drops comments, private frames, URLs, ratings, file ids, general objects, CD ids and old covers. Every other tag is kept. An ID3v1 trailer is removed.
-- Audio bytes are never touched.
+- Audio bytes are never touched, and never loaded: only the tag is read from each file, the output is the new tag plus a slice of the original file, and the zip is written around those slices. A 250-track album uses a few MB of memory.
 - Files are grouped by their existing album tag, so a mixed drop becomes one card per album.
 
 ## Stack
 
-Plain HTML and JavaScript, no build step. `js/id3.js` reads ID3v2.2 to 2.4 and writes 2.3; `js/album.js` is grouping, defaults, diagnosis and the write rules. `jszip` is copied from `metadata.harrys.monster`.
+Plain HTML and JavaScript, no build step. `js/id3.js` reads ID3v2.2 to 2.4 and writes 2.3; `js/album.js` is grouping, defaults, diagnosis and the write rules; `js/zip.js` is a STORE-only zip writer over Blobs (no zip64, so 4 GB per zip is the ceiling).
 
 ## Styling
 
@@ -26,7 +26,7 @@ Deliberately none. The shared CSS, fonts and background canvas copied from the o
 
 ```bash
 python3 -m http.server      # open http://localhost:8000
-npm test                    # node --test over id3.js and album.js
+npm test                    # node --test over id3.js, album.js and zip.js
 test/fixtures/make.sh       # regenerate fixtures (needs ffmpeg)
 ```
 

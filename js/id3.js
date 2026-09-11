@@ -97,10 +97,12 @@ export function normalise(frames) {
   return out;
 }
 
-export function build(frames, audio) {
+export function buildTag(frames) {
   const rank = f => { const i = ORDER.indexOf(f.id); return f.id === 'APIC' ? 99 : i < 0 ? 50 : i; };
   const sorted = frames.map((f, i) => [rank(f), i, f]).sort((a, b) => a[0] - b[0] || a[1] - b[1]).map(x => x[2]);
   const body = join(...sorted.map(f => join(new TextEncoder().encode(f.id), new Uint8Array([f.data.length >>> 24, f.data.length >>> 16 & 255, f.data.length >>> 8 & 255, f.data.length & 255, 0, 0]), f.data)), new Uint8Array(1024));
   const n = body.length;
-  return join(new Uint8Array([0x49, 0x44, 0x33, 3, 0, 0, n >>> 21 & 127, n >>> 14 & 127, n >>> 7 & 127, n & 127]), body, audio);
+  return join(new Uint8Array([0x49, 0x44, 0x33, 3, 0, 0, n >>> 21 & 127, n >>> 14 & 127, n >>> 7 & 127, n & 127]), body);
 }
+
+export const build = (frames, audio) => join(buildTag(frames), audio);

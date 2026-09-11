@@ -1,5 +1,6 @@
 import { load, group, defaults, numbers, diagnose, apply } from './album.js';
 import { toCover, search, fetchCover } from './art.js';
+import { zip } from './zip.js';
 
 const cards = document.getElementById('cards');
 const tpl = document.getElementById('card-tpl');
@@ -28,14 +29,13 @@ async function setCover(g, src) {
   catch (err) { g.card.querySelector('.card-error').textContent = `Could not read image: ${err.message}`; }
 }
 
-function zipGroup(zip, g, folder) {
-  const nums = numbers(g), rows = g.card.querySelectorAll('tbody tr');
-  let ok = 0;
+function entries(g, folder = '') {
+  const nums = numbers(g), rows = g.card.querySelectorAll('tbody tr'), out = [];
   g.tracks.forEach((t, i) => {
-    try { (folder ? zip.folder(folder) : zip).file(t.name, apply(t, g.form, g.cover, nums[i], g.tracks.length)); rows[i].lastChild.classList.remove('is-error'); ok++; }
+    try { out.push({ name: folder + t.name, blob: apply(t, g.form, g.cover, nums[i], g.tracks.length) }); rows[i].lastChild.classList.remove('is-error'); }
     catch (err) { rows[i].lastChild.textContent = err.message; rows[i].lastChild.classList.add('is-error'); }
   });
-  return ok;
+  return out;
 }
 
 async function download(blobPromise, name, note) {
@@ -85,10 +85,9 @@ function renderGroup(g) {
   $('.card-download').addEventListener('click', async e => {
     e.target.disabled = true;
     try {
-      const zip = new JSZip();
-      const ok = zipGroup(zip, g);
-      if (ok) await download(zip.generateAsync({ type: 'blob' }), `${safe(g.form.album || g.label)}.zip`, $('.card-note'));
-      window.track?.('download', { tracks: ok });
+      const list = entries(g);
+      if (list.length) await download(zip(list), `${safe(g.form.album || g.label)}.zip`, $('.card-note'));
+      window.track?.('download', { tracks: list.length });
     } finally { e.target.disabled = false; }
   });
   return card;
@@ -105,7 +104,7 @@ async function add(files) {
   for (const f of files) {
     if (f.type.startsWith('image/')) state.images.push(f);
     else if (/\.mp3$/i.test(f.name) || f.type === 'audio/mpeg') {
-      try { state.tracks.push(load(f.name, new Uint8Array(await f.arrayBuffer()))); }
+      try { state.tracks.push(await load(f)); }
       catch (err) { skip.push(`${f.name} (${err.message})`); }
     } else skip.push(f.name);
   }
@@ -117,9 +116,7 @@ async function add(files) {
 allBtn.addEventListener('click', async () => {
   allBtn.disabled = true;
   try {
-    const zip = new JSZip();
-    for (const g of state.groups) zipGroup(zip, g, safe(g.form.album || g.label));
-    await download(zip.generateAsync({ type: 'blob' }), 'albums.zip');
+    await download(zip(state.groups.flatMap(g => entries(g, safe(g.form.album || g.label) + '/'))), 'albums.zip');
   } finally { allBtn.disabled = false; }
 });
 
