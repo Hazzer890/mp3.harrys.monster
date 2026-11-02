@@ -8,11 +8,10 @@
   <link rel="canonical" href="https://mp3.harrys.monster/">
   <title>MP3 album fixer | Harry Cassidy</title>
 
-  <!-- Favicon: h.m monogram -->
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='12' fill='%232563eb'/><text x='50%25' y='54%25' dominant-baseline='middle' text-anchor='middle' font-family='JetBrains Mono,ui-monospace,monospace' font-size='30' font-weight='700' fill='%23fafafa'>h<tspan fill='%23dbeafe'>.</tspan>m</text></svg>">
-
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 18'><path fill='%233b5bdb' d='M12 11.19c5.65 0 8.61-6.28 5.98-10.64-.17-.29.15-.69.43-.51C21.77 2.19 24 5.99 24 10.26c0 2.91-1 5.5-2.76 7.58l-3.11-1.07c.6-.56 1.12-1.2 1.55-1.9.98-1.6-1.22-2.59-2.92-1.78-1.44.69-3.05 1.08-4.75 1.08s-3.31-.39-4.75-1.08c-1.69-.81-3.89.17-2.92 1.78.42.69.94 1.33 1.55 1.9l-3.13 1.08C1 15.76 0 13.18 0 10.26 0 5.99 2.23 2.19 5.59.04c.28-.18.6.22.43.51C3.39 4.9 6.35 11.19 12 11.19z'/></svg>">
 
   <!-- Styles -->
+  <link rel="stylesheet" href="css/theme.css">
   <link rel="stylesheet" href="css/app.css">
 <script>
 (function(){var A='https://analytics.harrys.monster/e',v;
@@ -42,11 +41,11 @@ window.track=function(n,p){send({t:'custom',name:n,props:p})};
 })();
 </script></head>
 <body>
-  <a href="#dropzone">Skip to file picker</a>
+  <a href="#dropzone" class="skip-link">Skip to file picker</a>
 
   <header class="header">
     <nav class="nav" aria-label="Primary">
-      <a href="https://harrys.monster" class="nav-logo">Harry Cassidy</a>
+      <a href="https://harrys.monster" class="nav-logo" aria-label="Harry Cassidy, home"><svg class="nav-mark" viewBox="0 0 24 18" fill="currentColor" aria-hidden="true" focusable="false"><path d="M12 11.19c5.65 0 8.61-6.28 5.98-10.64-.17-.29.15-.69.43-.51C21.77 2.19 24 5.99 24 10.26c0 2.91-1 5.5-2.76 7.58l-3.11-1.07c.6-.56 1.12-1.2 1.55-1.9.98-1.6-1.22-2.59-2.92-1.78-1.44.69-3.05 1.08-4.75 1.08s-3.31-.39-4.75-1.08c-1.69-.81-3.89.17-2.92 1.78.42.69.94 1.33 1.55 1.9l-3.13 1.08C1 15.76 0 13.18 0 10.26 0 5.99 2.23 2.19 5.59.04c.28-.18.6.22.43.51C3.39 4.9 6.35 11.19 12 11.19z"/></svg></a>
       <span class="nav-title">MP3 album fixer</span>
     </nav>
   </header>
@@ -59,13 +58,13 @@ window.track=function(n,p){send({t:'custom',name:n,props:p})};
 
     <div class="dropzone" id="dropzone">
       <input type="file" id="file-input" multiple accept=".mp3,audio/mpeg,image/*" hidden>
-      <p>Drop MP3s (and a cover image) here, or <button type="button" id="browse">browse</button></p>
+      <p>Drop MP3s (and a cover image) here, or <button type="button" id="browse" class="link">browse</button></p>
       <p class="dropzone-hint">Tags are rewritten as ID3v2.3, the version iTunes on Windows reads reliably. Audio is untouched.</p>
     </div>
 
     <p class="skipped" id="skipped"></p>
     <div class="cards" id="cards" aria-live="polite"></div>
-    <div class="card-actions"><button type="button" id="download-all" hidden>Download all albums</button></div>
+    <div class="card-actions"><button type="button" id="download-all" class="btn btn-primary" hidden>Download all albums</button></div>
   </main>
 
   <template id="card-tpl">
@@ -75,9 +74,9 @@ window.track=function(n,p){send({t:'custom',name:n,props:p})};
           <img class="art-img" alt="" hidden>
           <div class="art-empty">No cover</div>
           <div class="art-actions">
-            <button type="button" class="art-file">Use file</button>
+            <button type="button" class="btn btn-ghost art-file">Use file</button>
             <input type="file" class="art-input" accept="image/*" hidden>
-            <button type="button" class="art-search">Search</button>
+            <button type="button" class="btn btn-ghost art-search">Search</button>
           </div>
           <div class="art-results"></div>
         </div>
@@ -94,7 +93,7 @@ window.track=function(n,p){send({t:'custom',name:n,props:p})};
         </table>
       </div>
       <ul class="diagnosis"></ul>
-      <div class="card-actions"><button type="button" class="card-download">Download zip</button></div>
+      <div class="card-actions"><button type="button" class="btn btn-primary card-download">Download zip</button></div>
       <p class="card-note"></p>
       <p class="card-error" role="alert"></p>
     </section>

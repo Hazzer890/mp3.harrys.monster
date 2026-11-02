@@ -20,7 +20,7 @@ Plain HTML and JavaScript, no build step. `js/id3.js` reads ID3v2.2 to 2.4 and w
 
 ## Styling
 
-Deliberately none. The shared CSS, fonts and background canvas copied from the other sites were removed on 2026-09-10; `css/app.css` holds only the rules the page needs to function (hidden states, cover size). At the next harrys.monster major restyle this site gets brought in line with the rest.
+`css/theme.css` is the shared harrys.monster tool theme, identical across the tool subdomains (flat version of the main site's 2026-09-21 retheme). `css/app.css` holds this page's own rules.
 
 ## Developing
 
